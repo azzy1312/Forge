@@ -44,7 +44,7 @@ class ConvertPage(BasePage):
 
         # ── Topbar buttons — created ONCE here, reused on every navigation ─
         self._add_btn = ctk.CTkButton(
-            self,                          # parent doesn't matter — re-gridded by topbar
+            self._topbar.btn_container,
             text="＋  Add Files",
             width=100, height=30,
             fg_color=T.SURFACE,
@@ -57,7 +57,7 @@ class ConvertPage(BasePage):
             command=self._file_panel._pick_files,
         )
         self._start_btn = ctk.CTkButton(
-            self,
+            self._topbar.btn_container,
             text="▶  Start Queue",
             width=115, height=30,
             fg_color=T.ACCENT,

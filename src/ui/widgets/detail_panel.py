@@ -9,9 +9,8 @@ from src.utils import theme as T
 from src.core.queue_manager import QueueManager
 from src.ui.widgets.tooltip import Tooltip
 
-TABS    = ["Media Info", "Encode Settings", "Tracks", "Output"]
-TAB_H   = 40
-CARD_PAD = 14
+TABS     = ["Media Info", "Encode Settings", "Tracks", "Output"]
+TAB_H    = 40
 
 
 class DetailPanel(ctk.CTkFrame):
@@ -60,17 +59,17 @@ class DetailPanel(ctk.CTkFrame):
 
     def _switch_tab(self, name: str):
         for n, btn in self._tab_btns.items():
-            if n == name:
-                btn.configure(text_color=T.TEXT, fg_color=T.SURFACE)
-            else:
-                btn.configure(text_color=T.TEXT3, fg_color="transparent")
+            btn.configure(
+                text_color=T.TEXT if n == name else T.TEXT3,
+                fg_color=T.SURFACE if n == name else "transparent",
+            )
         for n, frame in self._tab_frames.items():
             if n == name:
                 frame.grid()
             else:
                 frame.grid_remove()
 
-    # ── Body container ────────────────────────────────────────────────────────
+    # ── Body ─────────────────────────────────────────────────────────────────
 
     def _build_bodies(self):
         container = ctk.CTkFrame(self, fg_color=T.BG, corner_radius=0)
@@ -94,50 +93,67 @@ class DetailPanel(ctk.CTkFrame):
             builder(scroll)
             self._tab_frames[name] = scroll
 
-    # ── Shared helpers ────────────────────────────────────────────────────────
+    # ── Helpers ───────────────────────────────────────────────────────────────
 
-    def _card(self, parent, title: str, grid_row: int) -> ctk.CTkFrame:
-        """Titled card — returns the body frame for content."""
+    def _card(self, parent, title: str, grid_row: int,
+              first: bool = False) -> ctk.CTkFrame:
+        """
+        Titled card with rounded corners on all four sides.
+        first=True adds extra top padding so the first card isn't flush
+        against the tab bar.
+        """
+        top_pad = 14 if first else 0
+
         card = ctk.CTkFrame(
             parent, fg_color=T.PANEL, corner_radius=T.RADIUS,
             border_width=1, border_color=T.BORDER2,
         )
         card.grid(row=grid_row, column=0, sticky="ew",
-                  padx=CARD_PAD, pady=(0, 10))
+                  padx=T.PAD, pady=(top_pad, 10))
         card.grid_columnconfigure(0, weight=1)
         card.grid_rowconfigure(0, weight=0)
         card.grid_rowconfigure(1, weight=0)
 
-        # Header strip
-        hdr = ctk.CTkFrame(card, fg_color=T.SURFACE, corner_radius=0, height=32)
-        hdr.grid(row=0, column=0, sticky="ew")
+        # Card header — rounded top corners, flat bottom
+        hdr = ctk.CTkFrame(
+            card, fg_color=T.SURFACE,
+            corner_radius=T.RADIUS,   # rounds all 4 but bottom gets covered
+            height=34,
+        )
+        hdr.grid(row=0, column=0, sticky="ew", padx=0, pady=0)
         hdr.grid_propagate(False)
         hdr.grid_columnconfigure(0, weight=1)
         hdr.grid_rowconfigure(0, weight=1)
+
         ctk.CTkLabel(
             hdr, text=title,
             font=ctk.CTkFont(size=9, weight="bold"),
             text_color=T.TEXT2, anchor="w",
-        ).grid(row=0, column=0, sticky="w", padx=12)
+        ).grid(row=0, column=0, sticky="w", padx=14, pady=0)
+
+        # A thin strip that covers only the bottom half of the header,
+        # making it appear flat-bottomed while the top corners stay rounded
+        flat_strip = ctk.CTkFrame(
+            card, fg_color=T.SURFACE, corner_radius=0, height=T.RADIUS,
+        )
+        flat_strip.grid(row=0, column=0, sticky="sew", padx=0, pady=0)
 
         # Body frame
         body = ctk.CTkFrame(card, fg_color="transparent", corner_radius=0)
-        body.grid(row=1, column=0, sticky="ew", padx=12, pady=8)
+        body.grid(row=1, column=0, sticky="ew",
+                  padx=T.PAD, pady=T.PAD_V)
         body.grid_columnconfigure(0, weight=1)
         return body
 
     def _info_field(self, parent, grid_row: int, grid_col: int,
                     label: str, value: str, tip: str):
-        """One label+value+tooltip cell."""
         cell = ctk.CTkFrame(parent, fg_color="transparent", corner_radius=0)
         cell.grid(row=grid_row, column=grid_col, sticky="nw",
-                  padx=(0, 16), pady=5)
-        cell.grid_columnconfigure(0, weight=0)
-        cell.grid_columnconfigure(1, weight=0)
+                  padx=(0, 20), pady=6)
         cell.grid_rowconfigure(0, weight=0)
         cell.grid_rowconfigure(1, weight=0)
+        cell.grid_columnconfigure(0, weight=0)
 
-        # Label row: text + tooltip icon side by side
         lbl_frame = ctk.CTkFrame(cell, fg_color="transparent", corner_radius=0)
         lbl_frame.grid(row=0, column=0, sticky="w")
         lbl_frame.grid_columnconfigure(0, weight=0)
@@ -148,25 +164,22 @@ class DetailPanel(ctk.CTkFrame):
             lbl_frame, text=label.upper(),
             font=ctk.CTkFont(size=9, weight="bold"), text_color=T.TEXT3,
         ).grid(row=0, column=0, sticky="w")
-        Tooltip(lbl_frame, tip).grid(row=0, column=1, padx=(4, 0), sticky="w")
+        Tooltip(lbl_frame, tip).grid(row=0, column=1, padx=(5, 0), sticky="w")
 
-        # Value
         ctk.CTkLabel(
             cell, text=value,
             font=ctk.CTkFont(size=12, family="Courier New"),
             text_color=T.TEXT, anchor="w",
-        ).grid(row=1, column=0, sticky="w", pady=(2, 0))
+        ).grid(row=1, column=0, sticky="w", pady=(3, 0))
 
     def _setting_row(self, parent, grid_row: int,
                      label: str, tip: str, control):
-        """Label+tooltip on left, control widget on right."""
         fr = ctk.CTkFrame(parent, fg_color="transparent", corner_radius=0)
-        fr.grid(row=grid_row, column=0, sticky="ew", pady=5)
+        fr.grid(row=grid_row, column=0, sticky="ew", pady=6)
         fr.grid_columnconfigure(0, weight=1)
         fr.grid_columnconfigure(1, weight=0)
         fr.grid_rowconfigure(0, weight=1)
 
-        # Left: label + tooltip
         left = ctk.CTkFrame(fr, fg_color="transparent", corner_radius=0)
         left.grid(row=0, column=0, sticky="w")
         left.grid_columnconfigure(0, weight=0)
@@ -177,9 +190,8 @@ class DetailPanel(ctk.CTkFrame):
             left, text=label,
             font=ctk.CTkFont(size=12, weight="bold"), text_color=T.TEXT,
         ).grid(row=0, column=0, sticky="w")
-        Tooltip(left, tip).grid(row=0, column=1, padx=(6, 0), sticky="w")
+        Tooltip(left, tip).grid(row=0, column=1, padx=(7, 0), sticky="w")
 
-        # Right: control
         control.grid(in_=fr, row=0, column=1, sticky="e")
 
     def _make_option(self, parent, values: list, default: str = None):
@@ -222,9 +234,9 @@ class DetailPanel(ctk.CTkFrame):
             parent,
             text="Select a file from the queue to inspect it",
             font=ctk.CTkFont(size=13), text_color=T.TEXT3,
-        ).grid(row=0, column=0, pady=(30, 20))
+        ).grid(row=0, column=0, pady=(40, 16))
 
-        vbody = self._card(parent, "VIDEO STREAM", grid_row=1)
+        vbody = self._card(parent, "VIDEO STREAM", grid_row=1, first=False)
         vbody.grid_columnconfigure((0, 1), weight=1)
         for i, (lbl, val, tip) in enumerate([
             ("Codec",        "—", "The compression standard used for the video. H.265/HEVC is modern and efficient; H.264 is older but universally compatible."),
@@ -253,7 +265,7 @@ class DetailPanel(ctk.CTkFrame):
     def _build_encode_settings(self, parent):
         parent.grid_columnconfigure(0, weight=1)
 
-        vbody = self._card(parent, "VIDEO ENCODER", grid_row=0)
+        vbody = self._card(parent, "VIDEO ENCODER", grid_row=0, first=True)
         vbody.grid_columnconfigure(0, weight=1)
 
         self._setting_row(vbody, 0, "Output Codec",
@@ -268,33 +280,36 @@ class DetailPanel(ctk.CTkFrame):
             "CRF targets consistent visual quality and lets file size vary. ABR targets a fixed average bitrate. 2-Pass ABR is most accurate for size-constrained encodes.",
             self._make_option(vbody, ["CRF (Quality)", "ABR (Bitrate)", "2-Pass ABR"], "CRF (Quality)"))
 
-        # CRF slider — custom row with live readout
+        # CRF slider — custom row with live value readout
         crf_row = ctk.CTkFrame(vbody, fg_color="transparent", corner_radius=0)
-        crf_row.grid(row=3, column=0, sticky="ew", pady=5)
+        crf_row.grid(row=3, column=0, sticky="ew", pady=6)
         crf_row.grid_columnconfigure(0, weight=1)
         crf_row.grid_columnconfigure(1, weight=0)
         crf_row.grid_columnconfigure(2, weight=0)
-        crf_row.grid_columnconfigure(3, weight=0)
         crf_row.grid_rowconfigure(0, weight=1)
 
         lbl_fr = ctk.CTkFrame(crf_row, fg_color="transparent", corner_radius=0)
         lbl_fr.grid(row=0, column=0, sticky="w")
         lbl_fr.grid_columnconfigure(0, weight=0)
         lbl_fr.grid_columnconfigure(1, weight=0)
-        ctk.CTkLabel(lbl_fr, text="CRF Value",
-                     font=ctk.CTkFont(size=12, weight="bold"),
-                     text_color=T.TEXT).grid(row=0, column=0, sticky="w")
+        lbl_fr.grid_rowconfigure(0, weight=1)
+
+        ctk.CTkLabel(
+            lbl_fr, text="CRF Value",
+            font=ctk.CTkFont(size=12, weight="bold"), text_color=T.TEXT,
+        ).grid(row=0, column=0, sticky="w")
         Tooltip(lbl_fr,
             "Quality level for CRF mode. Lower = better quality, larger file. "
-            "For H.265: 0 is lossless, 28 is default, 51 is worst. Values 18–24 are visually near-transparent."
-        ).grid(row=0, column=1, padx=(6, 0), sticky="w")
+            "For H.265: 0 is lossless, 28 is default, 51 is worst. "
+            "Values 18–24 are visually near-transparent."
+        ).grid(row=0, column=1, padx=(7, 0), sticky="w")
 
         self._crf_val = ctk.CTkLabel(
-            crf_row, text="22", width=28,
+            crf_row, text="22", width=30,
             font=ctk.CTkFont(size=11, family="Courier New"),
             text_color=T.ACCENT_H,
         )
-        self._crf_val.grid(row=0, column=1, padx=(0, 6), sticky="e")
+        self._crf_val.grid(row=0, column=1, padx=(0, 8), sticky="e")
 
         ctk.CTkSlider(
             crf_row, from_=0, to=51, number_of_steps=51,
@@ -324,26 +339,26 @@ class DetailPanel(ctk.CTkFrame):
     def _build_tracks(self, parent):
         parent.grid_columnconfigure(0, weight=1)
 
-        abody = self._card(parent, "AUDIO TRACKS", grid_row=0)
+        abody = self._card(parent, "AUDIO TRACKS", grid_row=0, first=True)
         abody.grid_columnconfigure(0, weight=1)
         ctk.CTkLabel(abody,
             text="Add files to the queue to see available audio tracks.",
             font=ctk.CTkFont(size=11), text_color=T.TEXT3,
-        ).grid(row=0, column=0, sticky="w", pady=10)
+        ).grid(row=0, column=0, sticky="w", pady=6)
 
         sbody = self._card(parent, "SUBTITLE TRACKS", grid_row=1)
         sbody.grid_columnconfigure(0, weight=1)
         ctk.CTkLabel(sbody,
             text="Add files to the queue to see available subtitle tracks.",
             font=ctk.CTkFont(size=11), text_color=T.TEXT3,
-        ).grid(row=0, column=0, sticky="w", pady=10)
+        ).grid(row=0, column=0, sticky="w", pady=6)
 
     # ── Output ────────────────────────────────────────────────────────────────
 
     def _build_output(self, parent):
         parent.grid_columnconfigure(0, weight=1)
 
-        obody = self._card(parent, "OUTPUT DESTINATION", grid_row=0)
+        obody = self._card(parent, "OUTPUT DESTINATION", grid_row=0, first=True)
         obody.grid_columnconfigure(0, weight=1)
 
         self._setting_row(obody, 0, "Output Folder",

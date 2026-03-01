@@ -26,15 +26,27 @@ GREEN        = "#27AE60"
 AMBER        = "#D4892A"
 
 # ── Typography ────────────────────────────────────────────────────────────────
-FONT_UI      = "Helvetica Neue"   # fallback system font (customtkinter default)
+FONT_UI      = "Helvetica Neue"
 FONT_MONO    = ("Courier New", 11)
 
 # ── Sizing ────────────────────────────────────────────────────────────────────
-SIDEBAR_W         = 220   # expanded width  (px)
-SIDEBAR_COLLAPSED = 60    # collapsed width (px)
-TOPBAR_H          = 52
+SIDEBAR_W         = 220
+SIDEBAR_COLLAPSED = 60
+
+# TOPBAR_H and LOGO_H must be identical — they share the same horizontal band
+# across the full window width. The divider at the bottom of each must be
+# at exactly the same Y coordinate so they appear as one continuous line.
+TOPBAR_H          = 56      # matches sidebar logo row height exactly
+LOGO_H            = 56      # sidebar logo row — keep in sync with TOPBAR_H
+
+QUEUE_HEADER_H    = 56      # queue panel header — same band as topbar
+
 RADIUS            = 8
 RADIUS_SM         = 5
+
+# Inner padding used consistently inside every card body
+PAD               = 14      # horizontal card inset
+PAD_V             = 12      # vertical card inset
 
 WINDOW_MIN_W = 1000
 WINDOW_MIN_H = 640

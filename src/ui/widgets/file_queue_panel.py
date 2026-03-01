@@ -2,6 +2,7 @@
 Forge — File Queue Panel
 Left panel: drop zone + scrollable file list.
 Pure grid layout throughout — no pack() calls anywhere.
+QUEUE_HEADER_H matches TOPBAR_H so the divider underneath is continuous.
 """
 
 import os
@@ -20,11 +21,9 @@ STATUS_COLOURS = {
     FileStatus.SKIPPED:  T.AMBER,
 }
 
-# Fixed pixel dimensions
-PANEL_W    = 300
-HEADER_H   = 40
-DROP_H     = 130   # fixed height drop zone
-BTN_SIZE   = 26
+PANEL_W  = 300
+BTN_SIZE = 28
+DROP_H   = 140
 
 
 class FileQueuePanel(ctk.CTkFrame):
@@ -35,11 +34,9 @@ class FileQueuePanel(ctk.CTkFrame):
         )
         self.queue = queue
         self.grid_propagate(False)
-        # Row 0 = header, Row 1 = drop zone, Row 2 = file list (expands), Row 3 = divider
-        self.grid_rowconfigure(0, weight=0)
-        self.grid_rowconfigure(1, weight=0)
-        self.grid_rowconfigure(2, weight=1)
-        self.grid_rowconfigure(3, weight=0)
+        self.grid_rowconfigure(0, weight=0)   # header
+        self.grid_rowconfigure(1, weight=0)   # drop zone
+        self.grid_rowconfigure(2, weight=1)   # list (expands)
         self.grid_columnconfigure(0, weight=1)
         self._build()
         self.queue.add_listener(self._refresh)
@@ -50,16 +47,14 @@ class FileQueuePanel(ctk.CTkFrame):
         self._build_header()
         self._build_drop_zone()
         self._build_list()
-        # Bottom divider
-        ctk.CTkFrame(self, height=1, fg_color=T.BORDER2, corner_radius=0).grid(
-            row=3, column=0, sticky="ew"
-        )
 
     def _build_header(self):
-        hdr = ctk.CTkFrame(self, fg_color=T.PANEL, corner_radius=0, height=HEADER_H)
+        # Height == QUEUE_HEADER_H == TOPBAR_H → divider is one continuous line
+        hdr = ctk.CTkFrame(
+            self, fg_color=T.PANEL, corner_radius=0, height=T.QUEUE_HEADER_H
+        )
         hdr.grid(row=0, column=0, sticky="ew")
         hdr.grid_propagate(False)
-        # Col 0 = label (expands), Col 1 = folder btn, Col 2 = clear btn
         hdr.grid_columnconfigure(0, weight=1)
         hdr.grid_columnconfigure(1, weight=0)
         hdr.grid_columnconfigure(2, weight=0)
@@ -69,7 +64,7 @@ class FileQueuePanel(ctk.CTkFrame):
             hdr, text="QUEUE",
             font=ctk.CTkFont(size=9, weight="bold"),
             text_color=T.TEXT3, anchor="w",
-        ).grid(row=0, column=0, sticky="w", padx=(14, 0))
+        ).grid(row=0, column=0, sticky="w", padx=(16, 0))
 
         ctk.CTkButton(
             hdr, text="📁", width=BTN_SIZE, height=BTN_SIZE,
@@ -83,9 +78,9 @@ class FileQueuePanel(ctk.CTkFrame):
             fg_color="transparent", hover_color=T.SURFACE,
             text_color=T.TEXT3, corner_radius=T.RADIUS_SM,
             font=ctk.CTkFont(size=13), command=self._clear_all,
-        ).grid(row=0, column=2, padx=(0, 8))
+        ).grid(row=0, column=2, padx=(0, 10))
 
-        # Divider under header
+        # Divider — sits at the bottom of the header row, continuous with topbar
         ctk.CTkFrame(self, height=1, fg_color=T.BORDER2, corner_radius=0).grid(
             row=0, column=0, sticky="sew"
         )
@@ -97,34 +92,36 @@ class FileQueuePanel(ctk.CTkFrame):
             self, fg_color=T.SURFACE, corner_radius=T.RADIUS,
             border_width=1, border_color=T.BORDER, height=DROP_H,
         )
-        outer.grid(row=1, column=0, sticky="ew", padx=10, pady=(8, 6))
+        outer.grid(row=1, column=0, sticky="ew", padx=10, pady=10)
         outer.grid_propagate(False)
         outer.grid_columnconfigure(0, weight=1)
-        # 4 rows: icon, title, subtitle, button
-        for r in range(4):
-            outer.grid_rowconfigure(r, weight=0)
-        outer.grid_rowconfigure(4, weight=1)   # padding row at bottom
+        outer.grid_rowconfigure(0, weight=1)   # top spacer
+        outer.grid_rowconfigure(1, weight=0)   # icon
+        outer.grid_rowconfigure(2, weight=0)   # title
+        outer.grid_rowconfigure(3, weight=0)   # subtitle
+        outer.grid_rowconfigure(4, weight=0)   # button
+        outer.grid_rowconfigure(5, weight=1)   # bottom spacer
 
         ctk.CTkLabel(
             outer, text="⊕", font=ctk.CTkFont(size=20), text_color=T.TEXT3,
-        ).grid(row=0, column=0, pady=(14, 0))
+        ).grid(row=1, column=0, pady=(0, 2))
 
         ctk.CTkLabel(
             outer, text="Drop files or folders here",
             font=ctk.CTkFont(size=11, weight="bold"), text_color=T.TEXT3,
-        ).grid(row=1, column=0, pady=(4, 0))
+        ).grid(row=2, column=0)
 
         ctk.CTkLabel(
             outer, text="MP4 · MKV · AVI · MOV · WebM · and more",
             font=ctk.CTkFont(size=10), text_color=T.TEXT3,
-        ).grid(row=2, column=0)
+        ).grid(row=3, column=0, pady=(2, 0))
 
         ctk.CTkButton(
             outer, text="Browse files", width=110, height=26,
             fg_color=T.SURFACE2, hover_color=T.BORDER,
             text_color=T.TEXT2, corner_radius=T.RADIUS_SM,
             font=ctk.CTkFont(size=11), command=self._pick_files,
-        ).grid(row=3, column=0, pady=(6, 0))
+        ).grid(row=4, column=0, pady=(8, 0))
 
         outer.bind("<Enter>", lambda e: outer.configure(border_color=T.ACCENT))
         outer.bind("<Leave>", lambda e: outer.configure(border_color=T.BORDER))
@@ -137,7 +134,7 @@ class FileQueuePanel(ctk.CTkFrame):
             scrollbar_button_color=T.BORDER,
             scrollbar_button_hover_color=T.TEXT3,
         )
-        self._list_scroll.grid(row=2, column=0, sticky="nsew")
+        self._list_scroll.grid(row=2, column=0, sticky="nsew", padx=0, pady=0)
         self._list_scroll.grid_columnconfigure(0, weight=1)
 
     def _refresh(self):
@@ -154,40 +151,41 @@ class FileQueuePanel(ctk.CTkFrame):
             fg_color=T.ACCENT_SUB if selected else "transparent",
             corner_radius=T.RADIUS_SM, cursor="hand2",
         )
-        row.grid(row=index, column=0, sticky="ew", padx=4, pady=1)
-        # Col 0 = ext badge, Col 1 = name+meta (expands), Col 2 = dot
+        row.grid(row=index, column=0, sticky="ew", padx=6, pady=2)
         row.grid_columnconfigure(0, weight=0)
         row.grid_columnconfigure(1, weight=1)
         row.grid_columnconfigure(2, weight=0)
+        row.grid_rowconfigure(0, weight=0)
+        row.grid_rowconfigure(1, weight=0)
 
         def on_click(e, i=index):
             self.queue.select(i)
 
         ext = ctk.CTkLabel(
             row, text=friendly_ext(entry.path),
-            width=36, height=26, fg_color=T.SURFACE2, corner_radius=3,
+            width=36, height=26, fg_color=T.SURFACE2, corner_radius=4,
             font=ctk.CTkFont(size=10, weight="bold"), text_color=T.TEXT3,
         )
-        ext.grid(row=0, column=0, rowspan=2, padx=(8, 6), pady=8, sticky="w")
+        ext.grid(row=0, column=0, rowspan=2, padx=(8, 8), pady=10, sticky="w")
 
         name = ctk.CTkLabel(
             row, text=entry.name,
             font=ctk.CTkFont(size=12, weight="bold"),
             text_color=T.TEXT, anchor="w",
         )
-        name.grid(row=0, column=1, sticky="ew", padx=(0, 4), pady=(8, 0))
+        name.grid(row=0, column=1, sticky="ew", padx=(0, 6), pady=(10, 1))
 
         meta = ctk.CTkLabel(
             row, text=f"{entry.size_str}  ·  {entry.duration}",
             font=ctk.CTkFont(size=10), text_color=T.TEXT2, anchor="w",
         )
-        meta.grid(row=1, column=1, sticky="ew", padx=(0, 4), pady=(0, 8))
+        meta.grid(row=1, column=1, sticky="ew", padx=(0, 6), pady=(1, 10))
 
         dot = ctk.CTkFrame(
             row, width=8, height=8,
             fg_color=STATUS_COLOURS.get(entry.status, T.TEXT3), corner_radius=4,
         )
-        dot.grid(row=0, column=2, rowspan=2, padx=(0, 10), sticky="e")
+        dot.grid(row=0, column=2, rowspan=2, padx=(0, 12), sticky="e")
 
         for w in (row, ext, name, meta, dot):
             w.bind("<Button-1>", on_click)
