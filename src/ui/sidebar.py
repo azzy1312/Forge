@@ -57,7 +57,7 @@ class Sidebar(ctk.CTkFrame):
 
         self._logo_mark = ctk.CTkLabel(
             logo_frame,
-            text="F",
+            text="V",
             width=30, height=30,
             fg_color=T.ACCENT,
             corner_radius=6,
@@ -68,7 +68,7 @@ class Sidebar(ctk.CTkFrame):
 
         self._logo_text = ctk.CTkLabel(
             logo_frame,
-            text="FORGE",
+            text="VMC",
             font=ctk.CTkFont(size=15, weight="bold"),
             text_color=T.TEXT,
             anchor="w",

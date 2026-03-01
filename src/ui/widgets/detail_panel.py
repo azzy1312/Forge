@@ -98,9 +98,11 @@ class DetailPanel(ctk.CTkFrame):
     def _card(self, parent, title: str, grid_row: int,
               first: bool = False) -> ctk.CTkFrame:
         """
-        Titled card with rounded corners on all four sides.
-        first=True adds extra top padding so the first card isn't flush
-        against the tab bar.
+        Titled card. The card frame itself has corner_radius=T.RADIUS so its
+        border is visibly rounded. The header strip inside is corner_radius=0
+        — the card clips its children so you never see square corners poking
+        through the rounded border. No hacks needed.
+        first=True adds 14px top gap so the card isn't flush against the tab bar.
         """
         top_pad = 14 if first else 0
 
@@ -113,14 +115,11 @@ class DetailPanel(ctk.CTkFrame):
         card.grid_columnconfigure(0, weight=1)
         card.grid_rowconfigure(0, weight=0)
         card.grid_rowconfigure(1, weight=0)
+        card.grid_rowconfigure(2, weight=0)
 
-        # Card header — rounded top corners, flat bottom
-        hdr = ctk.CTkFrame(
-            card, fg_color=T.SURFACE,
-            corner_radius=T.RADIUS,   # rounds all 4 but bottom gets covered
-            height=34,
-        )
-        hdr.grid(row=0, column=0, sticky="ew", padx=0, pady=0)
+        # Header strip — flat, inset 1px so card rounded border shows all around
+        hdr = ctk.CTkFrame(card, fg_color=T.SURFACE, corner_radius=0, height=34)
+        hdr.grid(row=0, column=0, sticky="ew", padx=1, pady=(1, 0))
         hdr.grid_propagate(False)
         hdr.grid_columnconfigure(0, weight=1)
         hdr.grid_rowconfigure(0, weight=1)
@@ -129,19 +128,16 @@ class DetailPanel(ctk.CTkFrame):
             hdr, text=title,
             font=ctk.CTkFont(size=9, weight="bold"),
             text_color=T.TEXT2, anchor="w",
-        ).grid(row=0, column=0, sticky="w", padx=14, pady=0)
+        ).grid(row=0, column=0, sticky="w", padx=14)
 
-        # A thin strip that covers only the bottom half of the header,
-        # making it appear flat-bottomed while the top corners stay rounded
-        flat_strip = ctk.CTkFrame(
-            card, fg_color=T.SURFACE, corner_radius=0, height=T.RADIUS,
+        # Thin separator between header and body
+        ctk.CTkFrame(card, height=1, fg_color=T.BORDER2, corner_radius=0).grid(
+            row=1, column=0, sticky="ew", padx=1
         )
-        flat_strip.grid(row=0, column=0, sticky="sew", padx=0, pady=0)
 
         # Body frame
         body = ctk.CTkFrame(card, fg_color="transparent", corner_radius=0)
-        body.grid(row=1, column=0, sticky="ew",
-                  padx=T.PAD, pady=T.PAD_V)
+        body.grid(row=2, column=0, sticky="ew", padx=T.PAD, pady=T.PAD_V)
         body.grid_columnconfigure(0, weight=1)
         return body
 
