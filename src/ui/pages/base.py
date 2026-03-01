@@ -1,5 +1,5 @@
 """
-Forge — Base Page
+Codex — Base Page
 All pages inherit from this.
 Topbar buttons are built ONCE in build() and cached — never recreated on navigation.
 """

@@ -1,4 +1,4 @@
-"""Forge — Settings page (placeholder)"""
+"""Codex — Settings page (placeholder)"""
 import customtkinter as ctk
 from src.ui.pages.base import BasePage
 from src.utils import theme as T

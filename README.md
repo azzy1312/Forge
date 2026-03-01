@@ -1,4 +1,4 @@
-# Forge
+# Codex
 
 A self-contained desktop media conversion and re-encoding tool built on HandBrakeCLI and FFprobe.
 
@@ -26,5 +26,5 @@ python main.py
 ## Build Standalone App
 
 ```bash
-pyinstaller forge.spec
+pyinstaller codex.spec
 ```

@@ -1,5 +1,5 @@
 """
-Forge — Detail Panel
+Codex — Detail Panel
 Tabbed right-side panel. Pure grid layout throughout.
 Tabs: Media Info | Encode Settings | Tracks | Output
 """
@@ -370,5 +370,5 @@ class DetailPanel(ctk.CTkFrame):
             self._make_option(obody, ["{name}_{codec}","{name}_{res}","{name}_converted","Custom…"], "{name}_{codec}"))
 
         self._setting_row(obody, 3, "Overwrite Existing Files",
-            "If a file with the same name already exists, overwrite it. When off, Forge appends a number to avoid collision.",
+            "If a file with the same name already exists, overwrite it. When off, Codex appends a number to avoid collision.",
             self._make_toggle(obody, default=False))

@@ -1,5 +1,5 @@
 """
-Forge — Topbar
+Codex — Topbar
 Fixed header bar. Title/subtitle on the left, action buttons on the right.
 Height matches LOGO_H in theme so the bottom divider is a single unbroken
 line across the full window width.

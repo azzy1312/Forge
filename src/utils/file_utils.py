@@ -1,5 +1,5 @@
 """
-Forge — File Utils
+Codex — File Utils
 Helpers for reading basic file info without FFprobe
 (size, extension, duration placeholder until FFprobe is wired in).
 """

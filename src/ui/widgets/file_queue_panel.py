@@ -1,5 +1,5 @@
 """
-Forge — File Queue Panel
+Codex — File Queue Panel
 Left panel: drop zone + scrollable file list.
 Pure grid layout throughout — no pack() calls anywhere.
 QUEUE_HEADER_H matches TOPBAR_H so the divider underneath is continuous.

@@ -1,5 +1,5 @@
 """
-Forge — Queue Manager
+Codex — Queue Manager
 Holds the list of queued files and their encode state.
 UI components observe this; encode workers will read from it.
 """

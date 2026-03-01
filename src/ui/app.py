@@ -1,5 +1,5 @@
 """
-VMC — App Shell
+Codex — App Shell
 """
 
 import customtkinter as ctk
@@ -13,7 +13,7 @@ from src.ui.pages.settings  import SettingsPage
 from src.core.queue_manager import QueueManager
 
 
-class ForgeApp(ctk.CTk):
+class CodexApp(ctk.CTk):
 
     def __init__(self):
         super().__init__()
@@ -21,7 +21,7 @@ class ForgeApp(ctk.CTk):
         ctk.set_appearance_mode("dark")
         ctk.set_default_color_theme("dark-blue")
 
-        self.title("VMC — Video Media Control")
+        self.title("Codex")
         self.geometry(f"{T.WINDOW_DEFAULT_W}x{T.WINDOW_DEFAULT_H}")
         self.minsize(T.WINDOW_MIN_W, T.WINDOW_MIN_H)
         self.configure(fg_color=T.BG)

@@ -1,1 +1,1 @@
-"""Forge — Pages package"""
+"""Codex — Pages package"""

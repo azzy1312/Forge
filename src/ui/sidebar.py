@@ -1,5 +1,5 @@
 """
-Forge — Sidebar
+Codex — Sidebar
 Collapsible navigation sidebar with icon + label nav items.
 LOGO_H must match TOPBAR_H so the bottom divider of the logo row and the
 bottom divider of the topbar form one unbroken horizontal line.
@@ -68,7 +68,7 @@ class Sidebar(ctk.CTkFrame):
 
         self._logo_text = ctk.CTkLabel(
             logo_frame,
-            text="VMC",
+            text="CODEX",
             font=ctk.CTkFont(size=15, weight="bold"),
             text_color=T.TEXT,
             anchor="w",

@@ -1,5 +1,5 @@
 """
-Forge — Tooltip
+Codex — Tooltip
 Small ⓘ icon that shows a description popup on hover.
 Self-contained widget — grid-safe, no pack() used outside this file.
 """

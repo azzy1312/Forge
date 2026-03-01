@@ -1,5 +1,5 @@
 """
-Forge — Theme
+Codex — Theme
 All colours, fonts, and sizing constants live here.
 Change something once, it updates everywhere.
 """

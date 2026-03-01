@@ -1,5 +1,5 @@
 """
-Forge — Progress Footer
+Codex — Progress Footer
 Fixed-height bottom bar. Pure grid layout.
 Col 0 = status+bar (expands), Col 1 = percentage, Col 2 = buttons
 """
